@@ -20,7 +20,7 @@ class Menu(ctk.CTkFrame):
         self.username_lbl = ctk.CTkLabel(self.left_frame, text = "Username")
         self.username_lbl.pack()
 
-        self.view_profile_bt = ctk.CTkButton(self.left_frame, text = "Zobrazit profil")
+        self.view_profile_bt = ctk.CTkButton(self.left_frame, text = "Zobrazit profil", command=self.view_profile_bt_click)
         self.view_profile_bt.pack(pady = 10)
 
         self.right_frame = ctk.CTkFrame(self, fg_color="transparent")
@@ -34,3 +34,6 @@ class Menu(ctk.CTkFrame):
 
     def play_bt_click(self):
         self.master.switch_frame(self.master.game_frame)
+
+    def view_profile_bt_click(self):
+        self.master.switch_frame(self.master.profile_frame)

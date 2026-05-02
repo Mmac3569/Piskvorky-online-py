@@ -16,3 +16,13 @@ class Game(ctk.CTkFrame):
 
         self.resign_bt = ctk.CTkButton(self.top_panel, text = "Vzdát se")
         self.resign_bt.pack(side = "left", padx = 5)
+
+        self.board_frame = ctk.CTkFrame(self, fg_color="gray", width=540, height=540)
+        self.board_frame.pack(padx = 10, pady = 10)
+
+        self.buttons = []
+        for i in range(100):
+            button = ctk.CTkButton(self.board_frame, text = f"", width=50, height=50)
+            button.grid(row=i//10, column=i%10, padx=2, pady=2)
+            self.buttons.append(button)
+
