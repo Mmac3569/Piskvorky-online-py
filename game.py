@@ -1,28 +1,42 @@
-import customtkinter as ctk
+from frames.game_frame import GameFrame
 
-class Game(ctk.CTkFrame):
+class Game:
+    def __init__(self, frame :GameFrame, online = False):
+        self.frame = frame
+        self.online = online
 
-    def __init__(self, master, width = 200, height = 200, corner_radius = None, border_width = None, bg_color = "transparent", fg_color = None, border_color = None, background_corner_colors = None, overwrite_preferred_drawing_method = None, **kwargs):
-        super().__init__(master, width, height, corner_radius, border_width, bg_color, fg_color, border_color, background_corner_colors, overwrite_preferred_drawing_method, **kwargs)
+        self.X_SYMBOL = True
+        self.O_SYMBOL = False
 
-        self.top_panel = ctk.CTkFrame(self, fg_color="transparent")
-        self.top_panel.pack(padx = 10, pady = 10)
+        self.moves =  dict()
 
-        self.status_label = ctk.CTkLabel(self.top_panel, text = "Jsi na tahu!", width=300)
-        self.status_label.pack(side = "left", expand = True, fill = "x", padx = 10)
+        self.x_offset = 0
+        self.y_offset = 0
+        
+        if self.online is False:
+            self.player = self.X_SYMBOL
 
-        self.draw_bt = ctk.CTkButton(self.top_panel, text = "Remíza")
-        self.draw_bt.pack(side = "left", padx = 5)
+    def eval_move(self, x, y):
+        real_x = x + self.x_offset
+        real_y = y + self.y_offset
 
-        self.resign_bt = ctk.CTkButton(self.top_panel, text = "Vzdát se")
-        self.resign_bt.pack(side = "left", padx = 5)
-
-        self.board_frame = ctk.CTkFrame(self, fg_color="gray", width=540, height=540)
-        self.board_frame.pack(padx = 10, pady = 10)
-
-        self.buttons = []
-        for i in range(100):
-            button = ctk.CTkButton(self.board_frame, text = f"", width=50, height=50)
-            button.grid(row=i//10, column=i%10, padx=2, pady=2)
-            self.buttons.append(button)
-
+        if self.moves.get((real_x, real_y)) == None:
+            print(f"Move at ({real_x}, {real_y}) is valid.")
+            self.moves[(real_x, real_y)] = self.player
+            self.player = not self.player
+            self.upadte_status_lbl()
+            return self.symbol_str(not self.player) #player variable is being changed before because of return
+    
+    def symbol_str(self, symbol_bool):
+        if symbol_bool is self.X_SYMBOL:
+            return "X"
+        elif symbol_bool is self.O_SYMBOL:
+            return "O"
+        #else:
+        return None
+    
+    def upadte_status_lbl(self):
+        if self.player is self.X_SYMBOL:
+            self.frame.status_label.configure(text = "Jsi na tahu!")
+        elif self.player is self.O_SYMBOL:
+            self.frame.status_label.configure(text = "2. hráč na tahu!")

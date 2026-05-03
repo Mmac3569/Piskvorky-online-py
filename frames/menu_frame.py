@@ -1,7 +1,8 @@
 from PIL import Image
 import customtkinter as ctk
+import game
 
-class Menu(ctk.CTkFrame):
+class MenuFrame(ctk.CTkFrame):
 
     def __init__(self, master, width = 200, height = 200, corner_radius = None, border_width = None, bg_color = "transparent", fg_color = None, border_color = None, background_corner_colors = None, overwrite_preferred_drawing_method = None, **kwargs):
         super().__init__(master, width, height, corner_radius, border_width, bg_color, fg_color, border_color, background_corner_colors, overwrite_preferred_drawing_method, **kwargs)
@@ -26,14 +27,19 @@ class Menu(ctk.CTkFrame):
         self.right_frame = ctk.CTkFrame(self, fg_color="transparent")
         self.right_frame.pack(side = "left", fill = "both", expand = True)
 
-        self.play_offline_bt = ctk.CTkButton(self.right_frame, text = "Hrát offline", command=self.play_bt_click, width=200)
+        self.play_offline_bt = ctk.CTkButton(self.right_frame, text = "Hrát offline", command=lambda: self.play_bt_click(online=False), width=200)
         self.play_offline_bt.pack(pady = 5, padx = 20)
 
-        self.play_online_bt = ctk.CTkButton(self.right_frame, text = "Hrát online", command=self.play_bt_click, width=200)
+        self.play_online_bt = ctk.CTkButton(self.right_frame, text = "Hrát online", command=lambda: self.play_bt_click(online=True), width=200)
         self.play_online_bt.pack(pady = 5, padx = 20)
 
-    def play_bt_click(self):
-        self.master.switch_frame(self.master.game_frame)
+    def play_bt_click(self, online = False):
+        if online:
+            print("Online play not implemented yet.")
+            self.master.game = game.Game(online=True)
+        else:
+            self.master.switch_frame(self.master.game_frame)
+            self.master.game = game.Game(self.master.game_frame, online=False)
 
     def view_profile_bt_click(self):
         self.master.switch_frame(self.master.profile_frame)
