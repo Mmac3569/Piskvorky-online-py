@@ -32,7 +32,7 @@ class Game:
 
             if self.check_win(real_x, real_y):
                 self.winner = current_player
-                self.frame.win(self.symbol_str(current_player))
+                self.frame.end(self.symbol_str(current_player))
                 return self.symbol_str(current_player)
 
             self.player = not self.player
@@ -59,6 +59,20 @@ class Game:
                 return True
 
         return False
+    
+    def resign(self):
+        if self.winner != None:
+            return
+
+        self.winner = not self.player
+        self.frame.end(self.symbol_str(self.winner))
+
+    def draw(self):
+        if self.winner != None:
+            return
+
+        self.winner = 0 # draw
+        self.frame.end(None)
 
     def symbol_str(self, symbol_bool):
         if symbol_bool is self.X_SYMBOL:

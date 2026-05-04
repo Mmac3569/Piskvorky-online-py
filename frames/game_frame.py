@@ -1,4 +1,5 @@
 import customtkinter as ctk
+from tkinter import messagebox
 
 class GameFrame(ctk.CTkFrame):
 
@@ -11,10 +12,10 @@ class GameFrame(ctk.CTkFrame):
         self.status_label = ctk.CTkLabel(self.top_panel, text = "Jsi na tahu!", width=300)
         self.status_label.pack(side = "left", expand = True, fill = "x", padx = 10)
 
-        self.draw_bt = ctk.CTkButton(self.top_panel, text = "Remíza")
+        self.draw_bt = ctk.CTkButton(self.top_panel, text = "Remíza", command=self.draw_bt_click)
         self.draw_bt.pack(side = "left", padx = 5)
 
-        self.resign_bt = ctk.CTkButton(self.top_panel, text = "Vzdát se")
+        self.resign_bt = ctk.CTkButton(self.top_panel, text = "Vzdát se", command=self.resign_bt_click)
         self.resign_bt.pack(side = "left", padx = 5)
 
         self.board_frame = ctk.CTkFrame(self, fg_color="gray", width=540, height=540)
@@ -38,8 +39,19 @@ class GameFrame(ctk.CTkFrame):
         if symbol != None:
             self.buttons[x][y].configure(text = symbol)
 
-    def win(self, symbol):
-        self.status_label.configure(text=f"Vyhrál {symbol}!")
+    def resign_bt_click(self):
+        if messagebox.askyesno("Vzdát se", "Opravdu chceš vzdát hru?"):
+            self.master.game.resign()
+
+    def draw_bt_click(self):
+        if messagebox.askyesno("Remíza", "Přijímáš remízu?"):
+            self.master.game.draw()
+
+    def end(self, symbol):
+        if symbol is None:
+            self.status_label.configure(text="Remíza!")
+        else:
+            self.status_label.configure(text=f"Vyhrál {symbol}!")
         self.draw_bt.pack_forget()
         self.resign_bt.configure(text = "Zpět do menu", command=self.back_to_menu)
     
