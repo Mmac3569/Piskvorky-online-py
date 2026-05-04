@@ -83,7 +83,4 @@ class Game:
         return None
     
     def upadte_status_lbl(self):
-        if self.player is self.X_SYMBOL:
-            self.frame.status_label.configure(text = "Jsi na tahu!")
-        elif self.player is self.O_SYMBOL:
-            self.frame.status_label.configure(text = "2. hráč na tahu!")
+        self.frame.status_label.configure(text = f"{self.symbol_str(self.player)} je na tahu!")

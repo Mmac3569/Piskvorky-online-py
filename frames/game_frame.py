@@ -9,7 +9,7 @@ class GameFrame(ctk.CTkFrame):
         self.top_panel = ctk.CTkFrame(self, fg_color="transparent")
         self.top_panel.pack(padx = 10, pady = 10)
 
-        self.status_label = ctk.CTkLabel(self.top_panel, text = "Jsi na tahu!", width=300)
+        self.status_label = ctk.CTkLabel(self.top_panel, text = "X je na tahu!", width=300)
         self.status_label.pack(side = "left", expand = True, fill = "x", padx = 10)
 
         self.draw_bt = ctk.CTkButton(self.top_panel, text = "Remíza", command=self.draw_bt_click)
@@ -28,13 +28,12 @@ class GameFrame(ctk.CTkFrame):
         for i in range(10): #creates columns
             button_column = []
             for j in range(10): #creates rows
-                button = ctk.CTkButton(self.board_frame, text = f"", width=50, height=50, command=lambda x=i, y=j: self.board_button_click(x, y))
+                button = ctk.CTkButton(self.board_frame, text = "", font=ctk.CTkFont(size=20), width=50, height=50, command=lambda x=i, y=j: self.board_button_click(x, y))
                 button.grid(row=j, column=i, padx=2, pady=2)
                 button_column.append(button)
             self.buttons.append(button_column)
 
     def board_button_click(self, x, y):
-        print(f"Button at ({x}, {y}) clicked.")
         symbol = self.master.game.eval_move(x, y)
         if symbol != None:
             self.buttons[x][y].configure(text = symbol)
@@ -62,5 +61,5 @@ class GameFrame(ctk.CTkFrame):
         for i in range(10):
             for j in range(10):
                 self.buttons[i][j].configure(text = "")
-        self.status_label.configure(text = "Jsi na tahu!")
+        self.status_label.configure(text = "X je na tahu!")
         
