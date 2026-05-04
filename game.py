@@ -16,7 +16,12 @@ class Game:
         if self.online is False:
             self.player = self.X_SYMBOL
 
+        self.winner = None
+
     def eval_move(self, x, y):
+        if self.winner != None:
+            return
+
         real_x = x + self.x_offset
         real_y = y + self.y_offset
 
@@ -26,7 +31,8 @@ class Game:
             self.moves[(real_x, real_y)] = current_player
 
             if self.check_win(real_x, real_y):
-                self.frame.status_label.configure(text=f"Vyhrál {self.symbol_str(current_player)}!")
+                self.winner = current_player
+                self.frame.win(self.symbol_str(current_player))
                 return self.symbol_str(current_player)
 
             self.player = not self.player

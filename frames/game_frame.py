@@ -38,3 +38,17 @@ class GameFrame(ctk.CTkFrame):
         if symbol != None:
             self.buttons[x][y].configure(text = symbol)
 
+    def win(self, symbol):
+        self.status_label.configure(text=f"Vyhrál {symbol}!")
+        self.draw_bt.pack_forget()
+        self.resign_bt.configure(text = "Zpět do menu", command=self.back_to_menu)
+    
+    def back_to_menu(self):
+        self.master.switch_frame(self.master.menu_frame)
+        self.draw_bt.pack(side = "left", padx = 5, after = self.status_label)
+        self.resign_bt.configure(text = "Vzdát se", command=lambda: self.master.game.resign())
+        for i in range(10):
+            for j in range(10):
+                self.buttons[i][j].configure(text = "")
+        self.status_label.configure(text = "Jsi na tahu!")
+        

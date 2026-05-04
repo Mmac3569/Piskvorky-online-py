@@ -36,7 +36,8 @@ class MenuFrame(ctk.CTkFrame):
     def play_bt_click(self, online = False):
         if online:
             print("Online play not implemented yet.")
-            self.master.game = game.Game(online=True)
+            #self.master.switch_frame(self.master.game_frame)
+            #self.master.game = game.Game(online=True)
         else:
             self.master.switch_frame(self.master.game_frame)
             self.master.game = game.Game(self.master.game_frame, online=False)
