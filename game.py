@@ -49,13 +49,17 @@ class Game:
 
         for dx, dy in directions:
             count = 1
+            checked = set([(x, y)])
             for step in (1, -1): # check in both directions (positive and negative)
                 nx, ny = x + dx * step, y + dy * step # offset from the last move in the current direction
                 while self.moves.get((nx, ny)) == symbol:
                     count += 1
+                    checked.add((nx, ny))
                     nx += dx * step # move further in the same direction
                     ny += dy * step # move further in the same direction
             if count >= win_length:
+                self.frame.win_positions = checked
+                self.frame.draw_win()
                 return True
 
         return False
@@ -74,14 +78,14 @@ class Game:
         self.winner = 0 # draw
         self.frame.end(None)
 
-    def move_board(self, event):
-        if event.keysym == "w":
+    def move_board(self, keysym):
+        if keysym == "w":
             self.y_offset -= 1
-        elif event.keysym == "a":
+        elif keysym == "a":
             self.x_offset -= 1
-        elif event.keysym == "s":
+        elif keysym == "s":
             self.y_offset += 1
-        elif event.keysym == "d":
+        elif keysym == "d":
             self.x_offset += 1
         self.frame.redraw_board(self.moves, self.x_offset, self.y_offset)
 

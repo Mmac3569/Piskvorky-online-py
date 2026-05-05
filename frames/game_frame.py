@@ -22,9 +22,12 @@ class GameFrame(ctk.CTkFrame):
         self.board_frame.pack(padx = 10, pady = 10)
 
         self.buttons = []
+        self.used_buttons = set()
+        self.win_positions = None
+
         self.create_grid()
 
-        self.master.bind("<KeyPress>", self.key_pressed)
+        self.master.bind("<KeyPress>", lambda event: self.master.game.move_board(event.keysym))
 
     def create_grid(self):
         for i in range(10): #creates columns
@@ -39,6 +42,7 @@ class GameFrame(ctk.CTkFrame):
         symbol = self.master.game.eval_move(x, y)
         if symbol != None:
             self.buttons[x][y].configure(text = symbol)
+            self.used_buttons.add((x, y))
 
     def resign_bt_click(self):
         if messagebox.askyesno("Vzdát se", "Opravdu chceš vzdát hru?"):
@@ -48,9 +52,6 @@ class GameFrame(ctk.CTkFrame):
         if messagebox.askyesno("Remíza", "Přijímáš remízu?"):
             self.master.game.draw()
 
-    def key_pressed(self, event):
-        self.master.game.move_board(event)
-
     def end(self, symbol):
         if symbol is None:
             self.status_label.configure(text="Remíza!")
@@ -58,23 +59,35 @@ class GameFrame(ctk.CTkFrame):
             self.status_label.configure(text=f"Vyhrál {symbol}!")
         self.draw_bt.pack_forget()
         self.resign_bt.configure(text = "Zpět do menu", command=self.back_to_menu)
+
+    def draw_win(self, color = "green"):
+        for x, y in self.win_positions:
+            grid_x = x - self.master.game.x_offset
+            grid_y = y - self.master.game.y_offset
+            if 0 <= grid_x < 10 and 0 <= grid_y < 10:
+                self.buttons[grid_x][grid_y].configure(fg_color=color)
     
     def back_to_menu(self):
         self.master.switch_frame(self.master.menu_frame)
         self.draw_bt.pack(side = "left", padx = 5, after = self.status_label)
         self.resign_bt.configure(text = "Vzdát se", command=lambda: self.master.game.resign())
-        for i in range(10):
-            for j in range(10):
-                self.buttons[i][j].configure(text = "")
+        for x, y in self.used_buttons:
+            self.buttons[x][y].configure(text = "")
+        self.draw_win(color = ctk.ThemeManager.theme["CTkButton"]["fg_color"])
+        self.win_positions = None
+        self.used_buttons.clear()
         self.status_label.configure(text = "X je na tahu!")
 
     def redraw_board(self, moves, x_offset, y_offset):
-        for i in range(10):
-            for j in range(10):
-                self.buttons[i][j].configure(text = "")
+        for x, y in self.used_buttons:
+            self.buttons[x][y].configure(text = "", fg_color = ctk.ThemeManager.theme["CTkButton"]["fg_color"])
+        self.used_buttons.clear()
         for (x, y), symbol in moves.items():
-            real_x = x - x_offset
-            real_y = y - y_offset
-            if 0 <= real_x < 10 and 0 <= real_y < 10:
-                self.buttons[real_x][real_y].configure(text = self.master.game.symbol_str(symbol))
+            grid_x = x - x_offset
+            grid_y = y - y_offset
+            if 0 <= grid_x < 10 and 0 <= grid_y < 10:
+                self.buttons[grid_x][grid_y].configure(text = self.master.game.symbol_str(symbol))
+                self.used_buttons.add((grid_x, grid_y))
+        if self.win_positions != None:
+            self.draw_win()
         
