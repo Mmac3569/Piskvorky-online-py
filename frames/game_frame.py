@@ -24,6 +24,8 @@ class GameFrame(ctk.CTkFrame):
         self.buttons = []
         self.create_grid()
 
+        self.master.bind("<KeyPress>", self.key_pressed)
+
     def create_grid(self):
         for i in range(10): #creates columns
             button_column = []
@@ -46,6 +48,9 @@ class GameFrame(ctk.CTkFrame):
         if messagebox.askyesno("Remíza", "Přijímáš remízu?"):
             self.master.game.draw()
 
+    def key_pressed(self, event):
+        self.master.game.move_board(event)
+
     def end(self, symbol):
         if symbol is None:
             self.status_label.configure(text="Remíza!")
@@ -62,4 +67,14 @@ class GameFrame(ctk.CTkFrame):
             for j in range(10):
                 self.buttons[i][j].configure(text = "")
         self.status_label.configure(text = "X je na tahu!")
+
+    def redraw_board(self, moves, x_offset, y_offset):
+        for i in range(10):
+            for j in range(10):
+                self.buttons[i][j].configure(text = "")
+        for (x, y), symbol in moves.items():
+            real_x = x - x_offset
+            real_y = y - y_offset
+            if 0 <= real_x < 10 and 0 <= real_y < 10:
+                self.buttons[real_x][real_y].configure(text = self.master.game.symbol_str(symbol))
         

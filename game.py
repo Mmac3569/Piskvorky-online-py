@@ -74,6 +74,18 @@ class Game:
         self.winner = 0 # draw
         self.frame.end(None)
 
+    def move_board(self, event):
+        if event.keysym == "w":
+            self.y_offset -= 1
+        elif event.keysym == "a":
+            self.x_offset -= 1
+        elif event.keysym == "s":
+            self.y_offset += 1
+        elif event.keysym == "d":
+            self.x_offset += 1
+        self.frame.redraw_board(self.moves, self.x_offset, self.y_offset)
+
+
     def symbol_str(self, symbol_bool):
         if symbol_bool is self.X_SYMBOL:
             return "X"
