@@ -1,8 +1,9 @@
 from frames.game_frame import GameFrame
 
 class Game:
-    def __init__(self, frame :GameFrame, online = False):
+    def __init__(self, frame :GameFrame, data_manager, online = False):
         self.frame = frame
+        self.data_manager = data_manager
         self.online = online
 
         self.X_SYMBOL = True
@@ -33,6 +34,10 @@ class Game:
             if self.check_win(real_x, real_y):
                 self.winner = current_player
                 self.frame.end(self.symbol_str(current_player))
+                if self.winner == self.X_SYMBOL:
+                    self.data_manager.save_stats(wins=self.data_manager.load_stats()["wins"] + 1)
+                elif self.winner == self.O_SYMBOL:
+                    self.data_manager.save_stats(losses=self.data_manager.load_stats()["losses"] + 1)
                 return self.symbol_str(current_player)
 
             self.player = not self.player
@@ -70,6 +75,7 @@ class Game:
 
         self.winner = not self.player
         self.frame.end(self.symbol_str(self.winner))
+        self.data_manager.save_stats(losses=self.data_manager.load_stats()["losses"] + 1)
 
     def draw(self):
         if self.winner != None:
@@ -77,6 +83,7 @@ class Game:
 
         self.winner = 0 # draw
         self.frame.end(None)
+        self.data_manager.save_stats(draws=self.data_manager.load_stats()["draws"] + 1)
 
     def move_board(self, keysym):
         if keysym == "w":

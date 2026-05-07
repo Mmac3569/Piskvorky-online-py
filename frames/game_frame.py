@@ -27,7 +27,7 @@ class GameFrame(ctk.CTkFrame):
 
         self.create_grid()
 
-        self.master.bind("<KeyPress>", lambda event: self.master.game.move_board(event.keysym))
+        self.bind("<KeyPress>", lambda event: self.master.game.move_board(event.keysym))
 
     def create_grid(self):
         for i in range(10): #creates columns
@@ -90,4 +90,7 @@ class GameFrame(ctk.CTkFrame):
                 self.used_buttons.add((grid_x, grid_y))
         if self.win_positions != None:
             self.draw_win()
+    
+    def refresh(self):
+        pass
         
