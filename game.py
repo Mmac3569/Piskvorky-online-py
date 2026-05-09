@@ -3,7 +3,7 @@ from frames.game_frame import GameFrame
 class Game:
     def __init__(self, frame :GameFrame, data_manager, online = False):
         self.frame = frame
-        self.data_manager = data_manager
+        self.dm = data_manager
         self.online = online
 
         self.X_SYMBOL = True
@@ -35,13 +35,13 @@ class Game:
                 self.winner = current_player
                 self.frame.end(self.symbol_str(current_player))
                 if self.winner == self.X_SYMBOL:
-                    self.data_manager.save_stats(wins=self.data_manager.load_stats()["wins"] + 1)
+                    self.dm.save_stats(wins=self.dm.wins + 1)
                 elif self.winner == self.O_SYMBOL:
-                    self.data_manager.save_stats(losses=self.data_manager.load_stats()["losses"] + 1)
+                    self.dm.save_stats(losses=self.dm.losses + 1)
                 return self.symbol_str(current_player)
 
             self.player = not self.player
-            self.upadte_status_lbl()
+            self.update_status_lbl()
             return self.symbol_str(current_player)
 
     def check_win(self, x, y):
@@ -75,7 +75,7 @@ class Game:
 
         self.winner = not self.player
         self.frame.end(self.symbol_str(self.winner))
-        self.data_manager.save_stats(losses=self.data_manager.load_stats()["losses"] + 1)
+        self.dm.save_stats(losses=self.dm.losses + 1)
 
     def draw(self):
         if self.winner != None:
@@ -83,7 +83,7 @@ class Game:
 
         self.winner = 0 # draw
         self.frame.end(None)
-        self.data_manager.save_stats(draws=self.data_manager.load_stats()["draws"] + 1)
+        self.dm.save_stats(draws=self.dm.draws + 1)
 
     def move_board(self, keysym):
         if keysym == "w":
@@ -105,5 +105,5 @@ class Game:
         #else:
         return None
     
-    def upadte_status_lbl(self):
+    def update_status_lbl(self):
         self.frame.status_label.configure(text = f"{self.symbol_str(self.player)} je na tahu!")

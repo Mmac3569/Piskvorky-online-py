@@ -5,6 +5,7 @@ class DataManager():
 
     def __init__(self):
         self.load_user_data()
+        self.load_stats()
 
     def load_user_data(self):
         file = open("./data/user.json", "r", encoding="utf-8")
@@ -36,23 +37,31 @@ class DataManager():
     def load_stats(self):
         file = open("./data/stats.json", "r", encoding="utf-8")
         data = json.load(file)
-        return data
+        self.games_played = data["games_played"]
+        self.wins = data["wins"]
+        self.draws = data["draws"]
+        self.losses = data["losses"]
     
     def save_stats(self, games_played = None, wins = None, draws = None, losses = None):
         if games_played == None and wins == None and draws == None and losses == None:
             return
-        stats = self.load_stats()
+        
         if games_played != None:
-            stats["games_played"] = games_played
+            self.games_played = games_played
         if wins != None:
-            stats["wins"] = wins
+            self.wins = wins
         if draws != None:
-            stats["draws"] = draws
+            self.draws = draws
         if losses != None:
-            stats["losses"] = losses
+            self.losses = losses
         
         file = open("./data/stats.json", "w", encoding="utf-8")
-        json.dump(stats, file, indent=4, ensure_ascii=False)
+        json.dump({
+            "games_played": self.games_played,
+            "wins": self.wins,
+            "draws": self.draws,
+            "losses": self.losses
+        }, file, indent=4, ensure_ascii=False)
 
     def reset_all(self):
         self.save_user_data(username="Anonymní uživatel", profile_picture=Image.open("./data/default_profile_picture.png"))

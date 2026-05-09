@@ -42,7 +42,6 @@ class MenuFrame(ctk.CTkFrame):
             self.master.game = game.Game(self.master.game_frame, self.master.data_manager, online=False)
 
     def view_profile_bt_click(self):
-        self.master.profile_frame.refresh()
         self.master.switch_frame(self.master.profile_frame)
 
     def refresh(self):

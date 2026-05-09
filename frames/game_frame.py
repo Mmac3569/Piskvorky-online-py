@@ -57,6 +57,7 @@ class GameFrame(ctk.CTkFrame):
             self.status_label.configure(text="Remíza!")
         else:
             self.status_label.configure(text=f"Vyhrál {symbol}!")
+        self.master.data_manager.save_stats(games_played=self.master.data_manager.games_played + 1)
         self.draw_bt.pack_forget()
         self.resign_bt.configure(text = "Zpět do menu", command=self.back_to_menu)
 
