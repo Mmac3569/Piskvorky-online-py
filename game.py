@@ -1,4 +1,5 @@
 from frames.game_frame import GameFrame
+from random import choice
 
 class Game:
     def __init__(self, frame :GameFrame, data_manager, online = False):
@@ -75,15 +76,30 @@ class Game:
 
         self.winner = not self.player
         self.frame.end(self.symbol_str(self.winner))
-        self.dm.save_stats(losses=self.dm.losses + 1)
+        if self.winner == self.X_SYMBOL:
+            self.dm.save_stats(wins=self.dm.wins + 1)
+        elif self.winner == self.O_SYMBOL:
+            self.dm.save_stats(losses=self.dm.losses + 1)
 
     def draw(self):
         if self.winner != None:
             return
 
-        self.winner = 0 # draw
+        self.winner = "" # draw
         self.frame.end(None)
         self.dm.save_stats(draws=self.dm.draws + 1)
+
+    def rematch(self):
+        self.moves.clear()
+        self.x_offset = 0
+        self.y_offset = 0
+        if self.winner != "":
+            self.player = not self.winner
+        else:
+            self.player = choice([self.X_SYMBOL, self.O_SYMBOL])
+        self.winner = None
+        self.update_status_lbl()
+        self.frame.redraw_board(self.moves, self.x_offset, self.y_offset)
 
     def move_board(self, keysym):
         if keysym == "w":

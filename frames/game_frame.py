@@ -49,8 +49,14 @@ class GameFrame(ctk.CTkFrame):
             self.master.game.resign()
 
     def draw_bt_click(self):
-        if messagebox.askyesno("Remíza", "Přijímáš remízu?"):
+        if self.master.game.winner is None and messagebox.askyesno("Remíza", "Přijímáš remízu?"):
             self.master.game.draw()
+        elif self.master.game.winner is not None:
+            self.master.game.rematch()
+            self.draw_bt.configure(text = "Remíza")
+            self.resign_bt.configure(text = "Vzdát se", command=self.resign_bt_click)
+            self.draw_win(color = ctk.ThemeManager.theme["CTkButton"]["fg_color"])
+            self.win_positions = None
 
     def end(self, symbol):
         if symbol is None:
@@ -58,10 +64,12 @@ class GameFrame(ctk.CTkFrame):
         else:
             self.status_label.configure(text=f"Vyhrál {symbol}!")
         self.master.data_manager.save_stats(games_played=self.master.data_manager.games_played + 1)
-        self.draw_bt.pack_forget()
+        self.draw_bt.configure(text = "Odveta")
         self.resign_bt.configure(text = "Zpět do menu", command=self.back_to_menu)
 
     def draw_win(self, color = "green"):
+        if self.win_positions == None:
+            return
         for x, y in self.win_positions:
             grid_x = x - self.master.game.x_offset
             grid_y = y - self.master.game.y_offset
@@ -70,8 +78,8 @@ class GameFrame(ctk.CTkFrame):
     
     def back_to_menu(self):
         self.master.switch_frame(self.master.menu_frame)
-        self.draw_bt.pack(side = "left", padx = 5, after = self.status_label)
-        self.resign_bt.configure(text = "Vzdát se", command=lambda: self.master.game.resign())
+        self.draw_bt.configure(text = "Remíza")
+        self.resign_bt.configure(text = "Vzdát se", command=self.resign_bt_click)
         for x, y in self.used_buttons:
             self.buttons[x][y].configure(text = "")
         self.draw_win(color = ctk.ThemeManager.theme["CTkButton"]["fg_color"])
@@ -89,8 +97,7 @@ class GameFrame(ctk.CTkFrame):
             if 0 <= grid_x < 10 and 0 <= grid_y < 10:
                 self.buttons[grid_x][grid_y].configure(text = self.master.game.symbol_str(symbol))
                 self.used_buttons.add((grid_x, grid_y))
-        if self.win_positions != None:
-            self.draw_win()
+        self.draw_win()
     
     def refresh(self):
         pass
