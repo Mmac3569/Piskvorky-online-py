@@ -27,13 +27,11 @@ class GameFrame(ctk.CTkFrame):
 
         self.create_grid()
 
-        self.bind("<KeyPress>", lambda event: self.master.game.move_board(event.keysym))
-
     def create_grid(self):
         for i in range(10): #creates columns
             button_column = []
             for j in range(10): #creates rows
-                button = ctk.CTkButton(self.board_frame, text = "", font=ctk.CTkFont(size=20), width=50, height=50, command=lambda x=i, y=j: self.board_button_click(x, y))
+                button = ctk.CTkButton(self.board_frame, text = "", font=ctk.CTkFont(size=20), width=50, height=50, corner_radius=0, command=lambda x=i, y=j: self.board_button_click(x, y))
                 button.grid(row=j, column=i, padx=2, pady=2)
                 button_column.append(button)
             self.buttons.append(button_column)
@@ -78,6 +76,7 @@ class GameFrame(ctk.CTkFrame):
     
     def back_to_menu(self):
         self.master.switch_frame(self.master.menu_frame)
+        self.master.unbind("<KeyPress>")
         self.draw_bt.configure(text = "Remíza")
         self.resign_bt.configure(text = "Vzdát se", command=self.resign_bt_click)
         for x, y in self.used_buttons:
@@ -100,5 +99,5 @@ class GameFrame(ctk.CTkFrame):
         self.draw_win()
     
     def refresh(self):
-        pass
+        self.master.bind("<KeyPress>", lambda event: self.master.game.move_board(event.keysym))
         

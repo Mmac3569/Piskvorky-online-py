@@ -28,7 +28,6 @@ class Game:
         real_y = y + self.y_offset
 
         if self.moves.get((real_x, real_y)) is None:
-            print(f"Move at ({real_x}, {real_y}) is valid.")
             current_player = self.player
             self.moves[(real_x, real_y)] = current_player
 
