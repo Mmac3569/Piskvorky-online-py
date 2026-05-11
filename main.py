@@ -21,6 +21,7 @@ class Main(ctk.CTk):
         self.profile_frame = profile_frame.ProfileFrame(self, self.data_manager, fg_color="transparent")
 
         self.game = None
+        self.networking = None
 
     def switch_frame(self, new_frame: ctk.CTkFrame):
         self.active_frame.pack_forget()

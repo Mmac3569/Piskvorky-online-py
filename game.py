@@ -1,8 +1,9 @@
 from frames.game_frame import GameFrame
+from data_manager import DataManager
 from random import choice
 
 class Game:
-    def __init__(self, frame :GameFrame, data_manager, online = False):
+    def __init__(self, frame :GameFrame, data_manager :DataManager, online = False):
         self.frame = frame
         self.dm = data_manager
         self.online = online
@@ -17,6 +18,9 @@ class Game:
         
         if self.online is False:
             self.player = self.X_SYMBOL
+
+        if self.online is True:
+            self.frame.status_label.configure(text = "Čekám na spojení...")
 
         self.winner = None
 
@@ -113,12 +117,18 @@ class Game:
 
 
     def symbol_str(self, symbol_bool):
-        if symbol_bool is self.X_SYMBOL:
+        if symbol_bool is self.X_SYMBOL and self.online is False:
             return "X"
-        elif symbol_bool is self.O_SYMBOL:
+        elif symbol_bool is self.O_SYMBOL and self.online is False:
             return "O"
+        elif symbol_bool is self.X_SYMBOL and self.online is True:
+            return "Ty (X)"
+        elif symbol_bool is self.O_SYMBOL and self.online is True:
+            return "Protivník (O)"
         #else:
         return None
     
-    def update_status_lbl(self):
-        self.frame.status_label.configure(text = f"{self.symbol_str(self.player)} je na tahu!")
+    def update_status_lbl(self, text = None):
+        if text is None and self.online is False:
+            text = f"{self.symbol_str(self.player)} je na tahu!"
+        self.frame.status_label.configure(text = text)

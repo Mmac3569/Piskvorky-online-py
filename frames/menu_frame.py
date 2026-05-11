@@ -1,6 +1,8 @@
 from PIL import Image
 import customtkinter as ctk
 import game
+import networking
+from tkinter import messagebox
 
 class MenuFrame(ctk.CTkFrame):
 
@@ -34,9 +36,12 @@ class MenuFrame(ctk.CTkFrame):
 
     def play_bt_click(self, online = False):
         if online:
-            print("Online play not implemented yet.")
-            #self.master.switch_frame(self.master.game_frame)
-            #self.master.game = game.Game(online=True)
+            if self.master.data_manager.username == "Anonymní uživatel":
+                messagebox.showerror("Chyba", "Pro hraní online si musíte zvolit uživatelské jméno.")
+                return
+            self.master.switch_frame(self.master.game_frame)
+            self.master.game = game.Game(self.master.game_frame, self.master.data_manager, online=True)
+            self.master.networking = networking.Networking(self.master.game, self.master.data_manager)
         else:
             self.master.switch_frame(self.master.game_frame)
             self.master.game = game.Game(self.master.game_frame, self.master.data_manager, online=False)
