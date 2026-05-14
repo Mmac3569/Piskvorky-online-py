@@ -2,7 +2,7 @@ from PIL import Image
 import customtkinter as ctk
 import game
 import networking
-from tkinter import messagebox
+from tkinter import messagebox, simpledialog
 
 class MenuFrame(ctk.CTkFrame):
 
@@ -34,17 +34,36 @@ class MenuFrame(ctk.CTkFrame):
         self.play_online_bt = ctk.CTkButton(self.right_frame, text = "Hrát online", command=lambda: self.play_bt_click(online=True), width=200)
         self.play_online_bt.pack(pady = 5, padx = 20)
 
+        self.play_with_random_bt = ctk.CTkButton(self.right_frame, text = "Hrát s náhodným soupeřem", command=lambda: self.play_online_bt_click(random=True), width=200, state="disabled")
+        self.play_with_random_bt.pack(pady = 5, padx = 20)
+
+        self.play_with_friend_bt = ctk.CTkButton(self.right_frame, text = "Vyzvat kamaráda", command=lambda: self.play_online_bt_click(random=False), width=200, state="disabled")
+        self.play_with_friend_bt.pack(pady = 5, padx = 20)
+
     def play_bt_click(self, online = False):
         if online:
             if self.master.data_manager.username == "Anonymní uživatel":
                 messagebox.showerror("Chyba", "Pro hraní online si musíte zvolit uživatelské jméno.")
                 return
-            self.master.switch_frame(self.master.game_frame)
-            self.master.game = game.Game(self.master.game_frame, self.master.data_manager, online=True)
-            self.master.networking = networking.Networking(self.master.game, self.master.data_manager)
+            self.master.networking = networking.Networking(self.master.data_manager, self.master.menu_frame, self.master.game_frame)
+            self.play_online_bt.configure(text = "Připojování k serveru...", state="disabled")
         else:
             self.master.switch_frame(self.master.game_frame)
             self.master.game = game.Game(self.master.game_frame, self.master.data_manager, online=False)
+
+    def play_online_bt_click(self, random):
+        if random:
+            self.master.networking.play("<random>")
+        else:
+            dialog = ctk.CTkInputDialog(title="Vyzvat hráče", text="Zadejte uživatelské jméno hráče, kterého chcete vyzvat:")
+            oponent = dialog.get_input()
+            if not oponent:
+                return
+            self.master.networking.play(oponent)
+
+        self.master.switch_frame(self.master.game_frame)
+        self.master.game = game.Game(self.master.game_frame, self.master.data_manager, online=True)
+        self.master.networking.bind_to_game(self.master.game)
 
     def view_profile_bt_click(self):
         self.master.switch_frame(self.master.profile_frame)
