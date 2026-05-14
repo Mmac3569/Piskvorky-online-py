@@ -19,12 +19,15 @@ class Networking:
 
         self.sio = socketio.Client()
         self.networking_thread = threading.Thread(target=self.start_connection, daemon=True)
-        #self.server_addr = 'https://piskvorky-online.onrender.com'
-        self.server_addr = 'http://localhost:3000'
+        self.server_addr = 'https://piskvorky-online.onrender.com'
+        #self.server_addr = 'http://localhost:3000'
 
         self.sio.on('connect', self.on_connect)
         self.sio.on('disconnect', self.on_disconnect)
         self.sio.on('error', self.on_error)
+        self.sio.on('challenge', self.on_challenge)
+        
+        self.sio.on('*', lambda event, data: print(f"Received event '{event}' with data: {data}"))
         
         self.networking_thread.start()
 
@@ -39,11 +42,17 @@ class Networking:
         self.sio.disconnect()
 
     def play(self, oponent):
-        self.sio.emit("play", {"oponent": oponent})
+        self.sio.emit("play", {"opponent": oponent})
 
     def on_error(self, data):
         self.disconnect_from_server()
+        self.on_disconnect()
         messagebox.showerror("Chyba", "Nepodařilo se připojit k serveru.\n" + data.get("type"))
+
+    def on_challenge(self, data):
+        print("Received challenge:", data)
+        opponent = data.get("from")
+        messagebox.showinfo("Výzva", f"Obdrželi jste výzvu od hráče {opponent}.")
 
     def on_connect(self):
         print("Connected to server")
