@@ -3,7 +3,7 @@ from data_manager import DataManager
 from random import choice
 
 class Game:
-    def __init__(self, frame :GameFrame, data_manager :DataManager, online = False):
+    def __init__(self, frame :GameFrame, data_manager :DataManager, online = False, begins = False):
         self.frame = frame
         self.dm = data_manager
         self.online = online
@@ -20,12 +20,16 @@ class Game:
             self.player = self.X_SYMBOL
 
         if self.online is True:
+            self.player = self.X_SYMBOL if begins else self.O_SYMBOL
+            self.can_move = begins
             self.frame.status_label.configure(text = "Čekám na spojení...")
 
         self.winner = None
 
-    def eval_move(self, x, y):
+    def eval_move(self, x, y, opponent_move = False):
         if self.winner != None:
+            return
+        if self.online and not self.can_move and not opponent_move:
             return
 
         real_x = x + self.x_offset
@@ -43,8 +47,9 @@ class Game:
                 elif self.winner == self.O_SYMBOL:
                     self.dm.save_stats(losses=self.dm.losses + 1)
                 return self.symbol_str(current_player)
-
+            #else:
             self.player = not self.player
+            self.can_move = not self.can_move
             self.update_status_lbl()
             return self.symbol_str(current_player)
 

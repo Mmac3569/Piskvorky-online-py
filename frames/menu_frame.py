@@ -55,14 +55,10 @@ class MenuFrame(ctk.CTkFrame):
             self.master.networking.play("<random>")
         else:
             dialog = ctk.CTkInputDialog(title="Vyzvat hráče", text="Zadejte uživatelské jméno hráče, kterého chcete vyzvat:")
-            oponent = dialog.get_input()
-            if not oponent:
+            opponent = dialog.get_input()
+            if not opponent:
                 return
-            self.master.networking.play(oponent)
-
-        self.master.switch_frame(self.master.game_frame)
-        self.master.game = game.Game(self.master.game_frame, self.master.data_manager, online=True)
-        self.master.networking.bind_to_game(self.master.game)
+            self.master.networking.play(opponent)
 
     def view_profile_bt_click(self):
         self.master.switch_frame(self.master.profile_frame)

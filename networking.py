@@ -26,6 +26,8 @@ class Networking:
         self.sio.on('disconnect', self.on_disconnect)
         self.sio.on('error', self.on_error)
         self.sio.on('challenge', self.on_challenge)
+        self.sio.on('start', self.on_start)
+        self.sio.on('reject', self.on_reject)
         
         self.sio.on('*', lambda event, data: print(f"Received event '{event}' with data: {data}"))
         
@@ -52,7 +54,23 @@ class Networking:
     def on_challenge(self, data):
         print("Received challenge:", data)
         opponent = data.get("from")
-        messagebox.showinfo("Výzva", f"Obdrželi jste výzvu od hráče {opponent}.")
+        if messagebox.askyesno("Výzva", f"Obdrželi jste výzvu od hráče {opponent}. Chcete ji přijmout?"):
+            self.sio.emit("accept", {"from": opponent})
+        else:
+            self.sio.emit("reject", {"from": opponent})
+
+    def on_start(self, data):
+        print("Game started with data:", data)
+        self.room = data.get("room")
+        begins = True if data.get("begins") == self.dm.username else False
+        self.menu_frame.master.switch_frame(self.game_frame)
+        game = Game(self.game_frame, self.dm, online=True, begins=begins)
+        self.game_frame.master.game = game
+        self.bind_to_game(game)
+
+    def on_reject(self, data):
+        messagebox.showinfo("Výzva zamítnuta", f"Hráč odmítnul vaši výzvu.")
+        self.menu_frame.master.switch_frame(self.menu_frame)
 
     def on_connect(self):
         print("Connected to server")
