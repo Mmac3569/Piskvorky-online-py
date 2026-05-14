@@ -1,13 +1,17 @@
 from game import Game
-from frames import menu_frame, game_frame
 from data_manager import DataManager
+from typing import TYPE_CHECKING
 
 import socketio
 import threading
 from tkinter import messagebox
 
+if TYPE_CHECKING:
+    from frames.menu_frame import MenuFrame
+    from frames.game_frame import GameFrame
+
 class Networking:
-    def __init__(self, data_manager: DataManager, menu_frame: menu_frame.MenuFrame, game_frame: game_frame.GameFrame):
+    def __init__(self, data_manager: DataManager, menu_frame: "MenuFrame", game_frame: "GameFrame"):
         self.game = None
         self.dm = data_manager
         self.menu_frame = menu_frame

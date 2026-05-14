@@ -2,7 +2,7 @@ from PIL import Image
 import customtkinter as ctk
 import game
 import networking
-from tkinter import messagebox, simpledialog
+from tkinter import messagebox
 
 class MenuFrame(ctk.CTkFrame):
 
@@ -45,7 +45,7 @@ class MenuFrame(ctk.CTkFrame):
             if self.master.data_manager.username == "Anonymní uživatel":
                 messagebox.showerror("Chyba", "Pro hraní online si musíte zvolit uživatelské jméno.")
                 return
-            self.master.networking = networking.Networking(self.master.data_manager, self.master.menu_frame, self.master.game_frame)
+            self.master.networking = networking.Networking(self.master.data_manager, self, self.master.game_frame)
             self.play_online_bt.configure(text = "Připojování k serveru...", state="disabled")
         else:
             self.master.switch_frame(self.master.game_frame)
