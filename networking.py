@@ -37,9 +37,6 @@ class Networking:
         self.sio.connect(self.server_addr, retry=True)
         self.sio.wait()
 
-    def bind_to_game(self, game: "Game"):
-        self.game = game
-
     def disconnect_from_server(self):
         self.sio.disconnect()
 
@@ -68,13 +65,13 @@ class Networking:
         begins = True if data.get("x_player") == self.dm.username else False
         opponent_name = data.get("o_player") if begins else data.get("x_player")
         self.menu_frame.master.switch_frame(self.game_frame)
-        game = Game(self.game_frame, self.dm, networking=self, online=True, begins=begins, opponent_name=opponent_name)
-        self.game_frame.game = game
-        self.bind_to_game(game)
+        self.game = Game(self.game_frame, self.dm, networking=self, online=True, begins=begins, opponent_name=opponent_name)
+        self.game_frame.game = self.game
+        self.menu_frame.reset_play_with_bts()
 
     def on_reject(self, data):
         messagebox.showinfo("Výzva zamítnuta", f"Hráč odmítnul vaši výzvu.")
-        self.menu_frame.master.switch_frame(self.menu_frame)
+        self.menu_frame.reset_play_with_bts()
 
     def on_move(self, data):
         self.game.eval_move(data.get("x"), data.get("y"), opponent_move=True)
@@ -83,11 +80,9 @@ class Networking:
         print("Connected to server")
         self.sio.emit("login", {"username": self.dm.username})
         self.menu_frame.play_online_bt.configure(text = "Odpojit se", command=self.disconnect_from_server, state="normal")
-        self.menu_frame.play_with_random_bt.configure(state="normal")
-        self.menu_frame.play_with_friend_bt.configure(state="normal")
+        self.menu_frame.reset_play_with_bts()
 
     def on_disconnect(self):
         print("Disconnected from server")
         self.menu_frame.play_online_bt.configure(text = "Hrát online", command=lambda: self.menu_frame.play_bt_click(online=True), state="normal")
-        self.menu_frame.play_with_random_bt.configure(state="disabled")
-        self.menu_frame.play_with_friend_bt.configure(state="disabled")
+        self.menu_frame.reset_play_with_bts(state="disabled")

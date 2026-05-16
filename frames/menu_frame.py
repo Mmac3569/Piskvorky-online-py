@@ -39,7 +39,7 @@ class MenuFrame(ctk.CTkFrame):
         self.play_with_friend_bt = ctk.CTkButton(self.right_frame, text = "Vyzvat kamaráda", command=lambda: self.play_online_bt_click(random=False), width=200, state="disabled")
         self.play_with_friend_bt.pack(pady = 5, padx = 20)
 
-    def play_bt_click(self, online = False):
+    def play_bt_click(self, online):
         if online:
             if self.master.data_manager.username == "Anonymní uživatel":
                 messagebox.showerror("Chyba", "Pro hraní online si musíte zvolit uživatelské jméno.")
@@ -48,20 +48,28 @@ class MenuFrame(ctk.CTkFrame):
             self.play_online_bt.configure(text = "Připojování k serveru...", state="disabled")
         else:
             self.master.switch_frame(self.master.game_frame)
-            self.master.game = game.Game(self.master.game_frame, self.master.data_manager, online=False)
+            self.master.game_frame.game = game.Game(self.master.game_frame, self.master.data_manager, online=False)
 
     def play_online_bt_click(self, random):
         if random:
             self.master.networking.play("<random>")
+            self.play_with_random_bt.configure(text="Čekání na hráče...", state="disabled")
+            self.play_with_friend_bt.configure(state = "disabled")
         else:
             dialog = ctk.CTkInputDialog(title="Vyzvat hráče", text="Zadejte uživatelské jméno hráče, kterého chcete vyzvat:")
             opponent = dialog.get_input()
-            if not opponent:
+            if opponent is None or opponent == "":
                 return
+            self.play_with_friend_bt.configure(text="Čekání na hráče...", state="disabled")
+            self.play_with_random_bt.configure(state = "disabled")
             self.master.networking.play(opponent)
 
     def view_profile_bt_click(self):
         self.master.switch_frame(self.master.profile_frame)
+
+    def reset_play_with_bts(self, state = "normal"):
+        self.play_with_random_bt.configure(text = "Hrát s náhodným soupeřem", state=state)
+        self.play_with_friend_bt.configure(text = "Vyzvat kamaráda", state=state)
 
     def refresh(self):
         self.picture = ctk.CTkImage(self.master.data_manager.profile_picture, size=(100, 100))
