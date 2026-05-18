@@ -112,4 +112,3 @@ class GameFrame(ctk.CTkFrame):
     
     def refresh(self):
         self.master.bind("<KeyPress>", lambda event: self.game.move_board(event.keysym))
-        

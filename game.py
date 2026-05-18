@@ -17,6 +17,7 @@ class Game:
         self.player = self.X_SYMBOL
 
         self.moves =  dict()
+        self.bounds = [0, 0, 0, 0] # [0, 0, 0, 0] -> [min_x_off, max_x_off, min_y_off, max_y_off]
 
         self.x_offset = 0
         self.y_offset = 0
@@ -44,6 +45,7 @@ class Game:
         if self.moves.get((real_x, real_y)) is None:
             current_player = self.player
             self.moves[(real_x, real_y)] = current_player
+            self.extend_bounds(real_x, real_y)
 
             if self.online:
                 self.can_move = not self.can_move
@@ -54,16 +56,35 @@ class Game:
 
             if self.check_win(real_x, real_y):
                 self.winner = current_player
-                self.frame.end(self.symbol_str(current_player))
-                if self.winner == self.X_SYMBOL:
-                    self.dm.save_stats(wins=self.dm.wins + 1)
-                elif self.winner == self.O_SYMBOL:
-                    self.dm.save_stats(losses=self.dm.losses + 1)
+                if not self.online:
+                    self.frame.end(self.symbol_str(current_player))
+                    if self.winner == self.X_SYMBOL:
+                        self.dm.save_stats(wins=self.dm.wins + 1)
+                    elif self.winner == self.O_SYMBOL:
+                        self.dm.save_stats(losses=self.dm.losses + 1)
+                else:
+                    self.frame.end(self.opponent_name if opponent_move else "jsi")
+                    if opponent_move:
+                        self.dm.save_stats(losses=self.dm.losses + 1)
+                    else:
+                        self.dm.save_stats(wins=self.dm.wins + 1)
+
                 return self.symbol_str(current_player)
             #else:
             self.player = not self.player
             self.update_status_lbl()
             return self.symbol_str(current_player)
+        
+    def extend_bounds(self, x, y):
+        dist = 4
+        if x-dist < self.bounds[0]:
+            self.bounds[0] = x-dist
+        elif x+dist > (self.bounds[1] + 9):
+            self.bounds[1] = (x+dist) - 9
+        if y-dist < self.bounds[2]:
+            self.bounds[2] = y-dist
+        elif y+dist > (self.bounds[3] + 9):
+            self.bounds[3] = (y+dist) - 9
 
     def check_win(self, x, y):
         symbol = self.moves.get((x, y))
@@ -122,26 +143,23 @@ class Game:
         self.frame.redraw_board(self.moves)
 
     def move_board(self, keysym):
-        if keysym == "w":
+        if keysym == "w" and self.y_offset > self.bounds[2]:
             self.y_offset -= 1
-        elif keysym == "a":
+        elif keysym == "a" and self.x_offset > self.bounds[0]:
             self.x_offset -= 1
-        elif keysym == "s":
+        elif keysym == "s" and self.y_offset < self.bounds[3]:
             self.y_offset += 1
-        elif keysym == "d":
+        elif keysym == "d" and self.x_offset < self.bounds[1]:
             self.x_offset += 1
         self.frame.redraw_board(self.moves)
 
     def center_board(self, x, y):
-        # Posuň zobrazení tak, aby bylo pole (x, y) viditelné v 10x10 mřížce.
-        # Cílová pozice se snaží být v centru zobrazení.
         target_grid_x = 4
         target_grid_y = 4
 
         self.x_offset = x - target_grid_x
         self.y_offset = y - target_grid_y
 
-        # Pokud by cílová buňka byla mimo viditelnou oblast, uzamkneme ji do rozsahu 0..9.
         if x - self.x_offset < 0:
             self.x_offset = x
         elif x - self.x_offset > 9:
