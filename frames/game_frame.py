@@ -48,26 +48,35 @@ class GameFrame(ctk.CTkFrame):
 
     def resign_bt_click(self):
         if messagebox.askyesno("Vzdát se", "Opravdu chceš vzdát hru?"):
+            if self.game.online:
+                self.game.network.send_resign()
             self.game.resign()
 
     def draw_bt_click(self):
-        if self.game.winner is None and messagebox.askyesno("Remíza", "Přijímáš remízu?"):
+        if self.game.winner is None and self.game.online is False and messagebox.askyesno("Remíza", "Přijímáš remízu? (protihráč)"):
             self.game.draw()
-        elif self.master.winner is not None:
+        elif self.game.winner is None and self.game.online and messagebox.askyesno("Remíza", "Opravdu chceš nabídnout remízu?"):
+            self.game.network.send_draw_offer()
+        elif self.game.winner is not None and self.game.online is False:
             self.game.rematch()
-            self.draw_bt.configure(text = "Remíza")
-            self.resign_bt.configure(text = "Vzdát se", command=self.resign_bt_click)
-            self.draw_win(color = ctk.ThemeManager.theme["CTkButton"]["fg_color"])
-            self.win_positions = None
+            self.reset_game()
+        elif self.game.winner is not None and self.game.online:
+            self.game.network.send_rematch_offer()
 
-    def end(self, symbol):
+    def end(self, symbol, reason = ""):
         if symbol is None:
             self.status_label.configure(text="Remíza!")
         else:
-            self.status_label.configure(text=f"Vyhrál {symbol}!")
+            self.status_label.configure(text=f"Vyhrál {symbol}! {reason}")
         self.master.data_manager.save_stats(games_played=self.master.data_manager.games_played + 1)
         self.draw_bt.configure(text = "Odveta")
         self.resign_bt.configure(text = "Zpět do menu", command=self.back_to_menu)
+
+    def reset_game(self):
+        self.draw_bt.configure(text = "Remíza")
+        self.resign_bt.configure(text = "Vzdát se", command=self.resign_bt_click)
+        self.draw_win(color = ctk.ThemeManager.theme["CTkButton"]["fg_color"])
+        self.win_positions = None
 
     def draw_win(self, color = "green"):
         if self.win_positions == None:
@@ -91,6 +100,8 @@ class GameFrame(ctk.CTkFrame):
             pass
     
     def back_to_menu(self):
+        if self.game.online:
+            self.game.network.send_leave()
         self.master.switch_frame(self.master.menu_frame)
         self.master.unbind("<KeyPress>")
         self.draw_bt.configure(text = "Remíza")

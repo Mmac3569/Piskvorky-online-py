@@ -55,14 +55,15 @@ class Game:
                     self.network.send_move(real_x, real_y)
 
             if self.check_win(real_x, real_y):
-                self.winner = current_player
                 if not self.online:
+                    self.winner = current_player
                     self.frame.end(self.symbol_str(current_player))
                     if self.winner == self.X_SYMBOL:
                         self.dm.save_stats(wins=self.dm.wins + 1)
                     elif self.winner == self.O_SYMBOL:
                         self.dm.save_stats(losses=self.dm.losses + 1)
                 else:
+                    self.winner = self.opponent_name if opponent_move else self.dm.username
                     self.frame.end(self.opponent_name if opponent_move else "jsi")
                     if opponent_move:
                         self.dm.save_stats(losses=self.dm.losses + 1)
@@ -111,16 +112,27 @@ class Game:
 
         return False
     
-    def resign(self):
+    def resign(self, opponent_move = False, disconnect = False):
         if self.winner != None:
             return
-
-        self.winner = not self.player
-        self.frame.end(self.symbol_str(self.winner))
-        if self.winner == self.X_SYMBOL:
-            self.dm.save_stats(wins=self.dm.wins + 1)
-        elif self.winner == self.O_SYMBOL:
-            self.dm.save_stats(losses=self.dm.losses + 1)
+        
+        if self.online:
+            self.winner = self.opponent_name if not opponent_move else self.dm.username
+            if disconnect:
+                self.frame.end("jsi", reason="Soupeř opustil hru.")
+            else:
+                self.frame.end((self.opponent_name if not opponent_move else "jsi"), reason=("Soupeř se vzdal." if opponent_move else "Vzdal ses."))
+            if opponent_move:
+                self.dm.save_stats(losses=self.dm.wins + 1)
+            else:
+                self.dm.save_stats(wins=self.dm.losses + 1)
+        else:
+            self.winner = not self.player
+            self.frame.end(self.symbol_str(self.winner), reason="Soupeř se vzdal.")
+            if self.winner == self.X_SYMBOL:
+                self.dm.save_stats(wins=self.dm.wins + 1)
+            elif self.winner == self.O_SYMBOL:
+                self.dm.save_stats(losses=self.dm.losses + 1)
 
     def draw(self):
         if self.winner != None:
@@ -134,10 +146,17 @@ class Game:
         self.moves.clear()
         self.x_offset = 0
         self.y_offset = 0
-        if self.winner != "":
-            self.player = not self.winner
-        else:
+        self.bounds = [0, 0, 0, 0]
+        if self.winner != "" and self.online is False:
+            self.player = not self.player
+        elif self.winner == "" and self.online is False:
             self.player = choice([self.X_SYMBOL, self.O_SYMBOL])
+        elif self.winner != "" and self.online is True:
+            self.player = self.X_SYMBOL
+            self.can_move = True if self.winner == self.opponent_name else False
+        elif self.winner == "" and self.online is True:
+            self.player = self.X_SYMBOL
+            self.can_move = True if self.network.room[4:] == self.opponent_name else False #if the opponent created the game (played X before), its your turn now
         self.winner = None
         self.update_status_lbl()
         self.frame.redraw_board(self.moves)
