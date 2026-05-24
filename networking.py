@@ -92,7 +92,7 @@ class Networking:
         self.game_frame.game = self.game
         self.menu_frame.reset_play_with_bts()
 
-    def on_reject(self, data):
+    def on_reject(self):
         messagebox.showinfo("Výzva zamítnuta", f"Hráč odmítnul vaši výzvu.")
         self.menu_frame.reset_play_with_bts()
 

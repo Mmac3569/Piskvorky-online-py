@@ -1,11 +1,18 @@
 import json
+from datetime import datetime
 from PIL import Image
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from main import Main
 
 class DataManager():
 
-    def __init__(self):
+    def __init__(self, main: "Main"):
+        self.main = main
         self.load_user_data()
         self.load_stats()
+        self.load_game_history()
 
     def load_user_data(self):
         try:
@@ -73,6 +80,28 @@ class DataManager():
             "losses": self.losses
         }, file, indent=4, ensure_ascii=False)
 
+    def load_game_history(self):
+        try:
+            file = open("./data/game_history.json", "r", encoding="utf-8")
+            self.history = json.load(file)
+        except:
+            self.history = []
+
+    def save_game_history(self):
+        file = open("./data/game_history.json", "w", encoding="utf-8")
+        json.dump(self.history, file, indent=4, ensure_ascii=False)
+
+    def add_to_history(self, opponent: str, result: str):
+        game_record = {
+            "date": datetime.now().strftime("%Y-%m-%d-%H:%M"),
+            "opponent_name": opponent,
+            "result": result
+        }
+        self.history.append(game_record)
+        self.main.profile_frame.add_to_history(game_record)
+        self.save_game_history()
+
     def reset_all(self):
         self.save_user_data(username="Anonymní uživatel", profile_picture=Image.open("./data/default_profile_picture.png"))
         self.save_stats(games_played=0, wins=0, draws=0, losses=0)
+        self.history = []; self.save_game_history()

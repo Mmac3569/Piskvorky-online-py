@@ -2,10 +2,16 @@ import customtkinter as ctk
 from PIL import Image
 import tkinter as tk
 from tkinter import filedialog, messagebox
+from datetime import datetime
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from data_manager import DataManager
+
 
 class ProfileFrame(ctk.CTkFrame):
 
-    def __init__(self, master, data_manager, width = 200, height = 200, corner_radius = None, border_width = None, bg_color = "transparent", fg_color = None, border_color = None, background_corner_colors = None, overwrite_preferred_drawing_method = None, **kwargs):
+    def __init__(self, master, data_manager: "DataManager", width = 200, height = 200, corner_radius = None, border_width = None, bg_color = "transparent", fg_color = None, border_color = None, background_corner_colors = None, overwrite_preferred_drawing_method = None, **kwargs):
         super().__init__(master, width, height, corner_radius, border_width, bg_color, fg_color, border_color, background_corner_colors, overwrite_preferred_drawing_method, **kwargs)
 
         self.dm = data_manager
@@ -40,11 +46,13 @@ class ProfileFrame(ctk.CTkFrame):
         self.right_frame = ctk.CTkFrame(self, fg_color="transparent")
         self.right_frame.pack(side = "left", fill = "both", expand = True)
         
-        self.history_title = ctk.CTkLabel(self.right_frame, text = "Historie her")
+        self.history_title = ctk.CTkLabel(self.right_frame, text = "Historie online her")
         self.history_title.pack(pady = 10)
 
         self.history_frame = ctk.CTkScrollableFrame(self.right_frame)
         self.history_frame.pack(pady = 10, padx = 10, fill = "both", expand = True)
+
+        self.display_history()
 
     def reset_stats(self):
         if messagebox.askyesno("Resetovat profil", "Opravdu chcete resetovat svůj profil? Tuto akci nelze vrátit zpět!"):
@@ -53,6 +61,8 @@ class ProfileFrame(ctk.CTkFrame):
             self.username.set(self.dm.username)
             self.picture = ctk.CTkImage(self.dm.profile_picture, size=(100, 100))
             self.profile_picture_bt.configure(image=self.picture)
+            for i in list(self.history_frame.children.values()):
+                i.destroy()
 
     def select_image(self):
         filetypes = (("Images", ["*.png", "*.jpg", "*.jpeg", "*.jpe", "*.jfif", "*.j2c", "*.j2k", "*.jp2", "*.jpc", "*.jpf", "*.jpx", "*.ico", "*.webp", "*.gif"]), ("All files", "*.*"))
@@ -63,6 +73,22 @@ class ProfileFrame(ctk.CTkFrame):
         self.dm.save_user_data(profile_picture=img)
         self.picture = ctk.CTkImage(img, size=(100, 100))
         self.profile_picture_bt.configure(image = self.picture)
+
+    def display_history(self):
+        for game in self.dm.history:
+            self.add_to_history(game)
+
+    def add_to_history(self, game):
+        date_format = "%Y-%m-%d-%H:%M"
+        date = datetime.strptime(game.get('date'), date_format)
+        if game.get('result') == 'výhra':
+            color = "dark green"
+        elif game.get('result') == 'prohra':
+            color = "dark red"
+        else:
+            color = "#444444"
+        element = ctk.CTkLabel(self.history_frame, text=f"{date.strftime('%d. %m. %Y %H:%M')}\nProti: {game.get('opponent_name')}\n Výsledek: {game.get('result')}", fg_color=color, font=("Arial", 15), height=60)
+        element.pack(side = "bottom", pady=5, padx=2.5, fill = "x", expand = True)
 
     def refresh(self):
         self.stats_lbl.configure(text = f"Odehrané hry: {self.dm.games_played}\nVýhry: {self.dm.wins}\nRemízy: {self.dm.draws}\nProhry: {self.dm.losses}")

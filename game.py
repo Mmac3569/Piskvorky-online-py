@@ -67,8 +67,10 @@ class Game:
                     self.frame.end(self.opponent_name if opponent_move else "jsi")
                     if opponent_move:
                         self.dm.save_stats(losses=self.dm.losses + 1)
+                        self.dm.add_to_history(self.opponent_name, "prohra")
                     else:
                         self.dm.save_stats(wins=self.dm.wins + 1)
+                        self.dm.add_to_history(self.opponent_name, "výhra")
 
                 return self.symbol_str(current_player)
             #else:
@@ -124,8 +126,10 @@ class Game:
                 self.frame.end((self.opponent_name if not opponent_move else "jsi"), reason=("Soupeř se vzdal." if opponent_move else "Vzdal ses."))
             if opponent_move:
                 self.dm.save_stats(losses=self.dm.wins + 1)
+                self.dm.add_to_history(opponent_name=self.opponent_name, result="výhra")
             else:
                 self.dm.save_stats(wins=self.dm.losses + 1)
+                self.dm.add_to_history(opponent_name=self.opponent_name, result="prohra")
         else:
             self.winner = not self.player
             self.frame.end(self.symbol_str(self.winner), reason="Soupeř se vzdal.")
@@ -141,6 +145,8 @@ class Game:
         self.winner = "" # draw
         self.frame.end(None)
         self.dm.save_stats(draws=self.dm.draws + 1)
+        if self.online:
+            self.dm.add_to_history(self.opponent_name, "remíza")
 
     def rematch(self):
         self.moves.clear()

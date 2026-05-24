@@ -10,7 +10,7 @@ class Main(ctk.CTk):
         self.geometry("600x500")
         self.title("Piškvorky")
 
-        self.data_manager = DataManager()
+        self.data_manager = DataManager(self)
         self.networking = None
 
         self.menu_frame = menu_frame.MenuFrame(self, fg_color="transparent")
@@ -25,6 +25,7 @@ class Main(ctk.CTk):
         self.active_frame.pack_forget()
         new_frame.refresh()
         new_frame.pack(fill = "both", expand = True)
+        new_frame.focus_set()
         self.active_frame = new_frame
 
 app = Main()
