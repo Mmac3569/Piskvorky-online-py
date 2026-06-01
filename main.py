@@ -2,6 +2,9 @@ import customtkinter as ctk
 from frames import game_frame, menu_frame, profile_frame
 from data_manager import DataManager
 
+ctk.set_appearance_mode("dark")
+ctk.set_default_color_theme("dark-blue")
+
 class Main(ctk.CTk):
 
     def __init__(self, fg_color = None, **kwargs):

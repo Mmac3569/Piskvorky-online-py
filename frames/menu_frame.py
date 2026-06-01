@@ -58,8 +58,9 @@ class MenuFrame(ctk.CTkFrame):
         else:
             dialog = ctk.CTkInputDialog(title="Vyzvat hráče", text="Zadejte uživatelské jméno hráče, kterého chcete vyzvat:")
             opponent = dialog.get_input()
-            if opponent is None or opponent == "":
+            if opponent is None or opponent == "" or opponent == self.master.data_manager.username:
                 return
+            opponent = opponent.strip()
             self.play_with_friend_bt.configure(text="Čekání na hráče...", state="disabled")
             self.play_with_random_bt.configure(state = "disabled")
             self.master.networking.play(opponent)

@@ -16,8 +16,8 @@ class DataManager():
 
     def load_user_data(self):
         try:
-            file = open("./data/user.json", "r", encoding="utf-8")
-            data = json.load(file)
+            with open("./data/user.json", "r", encoding="utf-8") as file:
+                data = json.load(file)
             self.username = data["username"]
             picture_path = "./data/" + data["profile-picture"]
         except:
@@ -39,16 +39,16 @@ class DataManager():
             self.profile_picture.save("./data/profile_picture." + self.profile_picture.format.lower(), self.profile_picture.format)
             self.profile_picture = Image.open("./data/profile_picture." + self.profile_picture.format.lower())
         
-        file = open("./data/user.json", "w", encoding="utf-8")
-        json.dump({
-            "username": self.username,
-            "profile-picture": "profile_picture." + self.profile_picture.format.lower()
-        }, file, indent=4, ensure_ascii=False)
+        with open("./data/user.json", "w", encoding="utf-8") as file:
+            json.dump({
+                "username": self.username,
+                "profile-picture": "profile_picture." + self.profile_picture.format.lower()
+            }, file, indent=4, ensure_ascii=False)
 
     def load_stats(self):
         try:
-            file = open("./data/stats.json", "r", encoding="utf-8")
-            data = json.load(file)
+            with open("./data/stats.json", "r", encoding="utf-8") as file:
+                data = json.load(file)
             self.games_played = data["games_played"]
             self.wins = data["wins"]
             self.draws = data["draws"]
@@ -72,24 +72,24 @@ class DataManager():
         if losses != None:
             self.losses = losses
         
-        file = open("./data/stats.json", "w", encoding="utf-8")
-        json.dump({
-            "games_played": self.games_played,
-            "wins": self.wins,
-            "draws": self.draws,
-            "losses": self.losses
-        }, file, indent=4, ensure_ascii=False)
+        with open("./data/stats.json", "w", encoding="utf-8") as file:
+            json.dump({
+                "games_played": self.games_played,
+                "wins": self.wins,
+                "draws": self.draws,
+                "losses": self.losses
+            }, file, indent=4, ensure_ascii=False)
 
     def load_game_history(self):
         try:
-            file = open("./data/game_history.json", "r", encoding="utf-8")
-            self.history = json.load(file)
+            with open("./data/game_history.json", "r", encoding="utf-8") as file:
+                self.history = json.load(file)
         except:
             self.history = []
 
     def save_game_history(self):
-        file = open("./data/game_history.json", "w", encoding="utf-8")
-        json.dump(self.history, file, indent=4, ensure_ascii=False)
+        with open("./data/game_history.json", "w", encoding="utf-8") as file:
+            json.dump(self.history, file, indent=4, ensure_ascii=False)
 
     def add_to_history(self, opponent: str, result: str):
         game_record = {
